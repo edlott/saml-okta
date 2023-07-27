@@ -131,6 +131,35 @@ resource "okta_policy_rule_signon" "externalNetworkAccessNoMFA" {
   risc_level = "ANY"
 }
 
+/********** Authenticator Enrollment **********/
+
+resource "okta_policy_mfa" "emailMfa" {
+  description       = "Managed User MFA settings"
+  groups_included = [
+    okta_group.managed.id,
+  ]
+  is_oie = true
+  name = "MME Managed User MFA settings"
+  okta_email        = {
+    "enroll" = "REQUIRED"
+  }
+  okta_password        = {
+    "enroll" = "REQUIRED"
+  }
+  phone_number      = {
+    "enroll" = "NOT_ALLOWED"
+  }
+  priority          = 1
+  security_question = {
+    "enroll" = "REQUIRED"
+  }
+}
+
+resource "okta_policy_rule_mfa" "catchAll" {
+  name = "CatchAll"
+  policy_id = okta_policy_mfa.emailMfa.id
+}
+
 /********** Application **********/
 
 resource "okta_app_oauth" "mmExternal" {
