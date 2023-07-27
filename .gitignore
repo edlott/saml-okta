@@ -1,0 +1,5 @@
+.idea
+.terraform
+terraform.tfstate.d
+.terraform.lock.hcl
+okta_creds.sh
