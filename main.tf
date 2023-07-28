@@ -19,7 +19,7 @@ locals {
     ed-dev = {
       org_name = "dev-71459526"
       base_url = "okta.com"
-      redirect_callback_env = ["http://localhost:3000/login/callback"]
+      redirect_callback_env = ["http://localhost:3000/loginCallback"]
       redirect_logout_env = ["http://localhost:3000/logout"]
       re_authentication_frequency = "PT720H"
       access_token_lifetime_minutes = 5
@@ -202,4 +202,28 @@ resource "okta_app_group_assignments" "mmExternal" {
     id = okta_group.managed.id
     priority = 3
   }
+}
+
+/********** CORS **********/
+
+resource "okta_trusted_origin" "localDev" {
+  name = "localDev"
+  origin = "http://localhost:3000/"
+  scopes = ["CORS","REDIRECT"]
+}
+
+/********** Test managed user **********/
+
+resource "okta_user" "managed1" {
+  first_name = "Ed"
+  last_name = "Lott"
+  login = "elott@samlbug.org"
+  email = "edlott@sbcglobal.net"
+}
+
+resource "okta_user_group_memberships" "managed1" {
+  user_id = okta_user.managed1.id
+  groups = [
+    okta_group.managed.id
+  ]
 }
