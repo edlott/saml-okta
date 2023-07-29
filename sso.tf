@@ -1,0 +1,17 @@
+resource "okta_idp_saml_key" "mockSaml" {
+  x5c = [
+    "MIID3jCCAsYCCQCpZvgd7VVqNDANBgkqhkiG9w0BAQsFADCBrzELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0Zsb3JpZGExFzAVBgNVBAcMDkNhcGUgQ2FuYXZlcmFsMRswGQYDVQQKDBJUdXR0bGUgRW50ZXJwcmlzZXMxFDASBgNVBAsMC0RldmVsb3BtZW50MR0wGwYDVQQDDBRkZXYudGVudGVycHJpc2VzLm9yZzEjMCEGCSqGSIb3DQEJARYUZWRsb3R0QHNiY2dsb2JhbC5uZXQwIBcNMjMwNzI2MjEwMTQxWhgPMzAyMjExMjYyMTAxNDFaMIGvMQswCQYDVQQGEwJVUzEQMA4GA1UECAwHRmxvcmlkYTEXMBUGA1UEBwwOQ2FwZSBDYW5hdmVyYWwxGzAZBgNVBAoMElR1dHRsZSBFbnRlcnByaXNlczEUMBIGA1UECwwLRGV2ZWxvcG1lbnQxHTAbBgNVBAMMFGRldi50ZW50ZXJwcmlzZXMub3JnMSMwIQYJKoZIhvcNAQkBFhRlZGxvdHRAc2JjZ2xvYmFsLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJ19eNDCv/oohrNvY9iO0B1k9oghso/H0l0nbsAS8lAnzXwM+vBj/hl67zGECOJxWLZpbb+bejuQgCVz6V8jQCUeqsriebo3ikM6WLDtkU3YiGleFxRKbaqSS8hKLlBPsdXCyowyi5yAWS/u1yB04OEU6xfyLtwzc27wEXhpTkU/Vq4yI1+iYNPnjAq++29HQJ3eHl8tPHOjaf/TCGR686YtaS6ed0/cPqFgIANGK/eF1f66uEckxVE9SD6nCMFuo9H3ZsCF4VDgeQvbFl6cmVmb+KceceZCIPY7+IYXTwtkp1gKkERvhkhqeiWilH8UH7IgArVXDSyJixe2fJIkipECAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAmxvp6Bwd1tfLmMO5F5erL2hYk2711I1Tvk93N2/KdzCeE0YrpiIj0v4bd0zZqWhvRnZ8NkXyEILGcSQsvWGJJhF/JGQ6UaCuKwJYQQukFGCdrjOoZfT2qIhaFj5MwaXsE5mv2VEP/uZTgnl6a/rBxpZJy4GhESkPxxUyxRynZG+6Vd+f/VycMh+j7iYVItPLoVnWDpqyFEym7/NcGu9OeN0B+OdEJDivOMdzDEw+mX606e8FWK71mu9w06te0rODM7cWPU3JD+bX+Tw7nxJfhLVd6K5W2IFUb5mHfNekqpsH7vzniG0CCdHEWAZ1De0yDCg2ozdv/CPxvyp09Sejgg=="
+  ]
+}
+
+module "mock-saml_idp" {
+  source = "./idp"
+  issuer = "mock-saml"
+  name = "mock-saml"
+  prefix = "mock_saml-"
+  sso_url = "https://mypassport-demo.mymatrixx.com/sso"
+  public_cert = okta_idp_saml_key.mockSaml.kid
+  mfaGroupId = okta_group.ssoMFA.id
+  noMfaGroupId = okta_group.ssoNoMFA.id
+  createRun = false
+}

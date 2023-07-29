@@ -12,7 +12,7 @@ terraform {
 locals {
   env = {
     default = {
-      mfa_lifetime = 1
+      mfa_lifetime = 3
       password_max_age_days = 90
       password_min_age_minutes = 0
     }
@@ -25,7 +25,6 @@ locals {
       access_token_lifetime_minutes = 5
       refresh_token_lifetime_minutes = 5
       refresh_token_window_minutes = 5
-      okta_policy_mfa_priority = 1
     }
   }
 
@@ -212,7 +211,7 @@ resource "okta_trusted_origin" "localDev" {
   scopes = ["CORS","REDIRECT"]
 }
 
-/********** Test managed user **********/
+/********** Test managed users **********/
 
 resource "okta_user" "managed1" {
   first_name = "Ed"
