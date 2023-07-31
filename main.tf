@@ -94,7 +94,7 @@ data "okta_behavior" "new_device" {
 }
 
 resource "okta_policy_signon" "externalNetworkAccess" {
-  name = "MME Managed Users2"
+  name = "MME Managed Users"
   description = "MME Managed Users"
   priority = 1
   groups_included = [
@@ -103,7 +103,7 @@ resource "okta_policy_signon" "externalNetworkAccess" {
 }
 
 resource "okta_policy_rule_signon" "externalNetworkAccess" {
-  name = "MME Managed Users2"
+  name = "MME Managed Users"
   policy_id = okta_policy_signon.externalNetworkAccess.id
   session_idle = 1
   session_lifetime = 5
@@ -116,7 +116,7 @@ resource "okta_policy_rule_signon" "externalNetworkAccess" {
 }
 
 resource "okta_policy_signon" "externalNetworkAccessNoMFA" {
-  name = "MME SSO Users No MFA2"
+  name = "MME SSO Users No MFA"
   description = "MME SSO Users No MFA"
   priority = 2
   groups_included = [
@@ -125,7 +125,7 @@ resource "okta_policy_signon" "externalNetworkAccessNoMFA" {
 }
 
 resource "okta_policy_rule_signon" "externalNetworkAccessNoMFA" {
-  name = "MME SSO Users No MFA2"
+  name = "MME SSO Users No MFA"
   policy_id = okta_policy_signon.externalNetworkAccessNoMFA.id
   session_idle = 1
   session_lifetime = 1
@@ -136,7 +136,7 @@ resource "okta_policy_rule_signon" "externalNetworkAccessNoMFA" {
 }
 
 resource "okta_policy_signon" "externalNetworkAccessMFA" {
-  name = "MME SSO Users MFA2"
+  name = "MME SSO Users MFA"
   description = "MME SSO Users MFA"
   priority = 3
   groups_included = [
@@ -145,7 +145,7 @@ resource "okta_policy_signon" "externalNetworkAccessMFA" {
 }
 
 resource "okta_policy_rule_signon" "ssoNewDevice" {
-  name = "MME SSO Users New Device2"
+  name = "MME SSO Users New Device"
   policy_id = okta_policy_signon.externalNetworkAccessMFA.id
   behaviors = [
     data.okta_behavior.new_device.id
@@ -161,7 +161,7 @@ resource "okta_policy_rule_signon" "ssoNewDevice" {
 }
 
 resource "okta_policy_rule_signon" "ssoExistingDevice" {
-  name = "MME SSO Users Existing Device2"
+  name = "MME SSO Users Existing Device"
   policy_id = okta_policy_signon.externalNetworkAccessMFA.id
   session_idle = 1
   session_lifetime = 1
