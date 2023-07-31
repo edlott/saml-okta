@@ -83,7 +83,7 @@ resource "okta_app_signon_policy_rule" "mfaHandledOrIgnored" {
 resource "okta_app_signon_policy_rule" "denyAll" {
   policy_id = okta_app_signon_policy.myMatrixExternal.id
   name = "Deny All"
-  priority = 3
+  priority = 2
   access = "DENY"
 }
 
