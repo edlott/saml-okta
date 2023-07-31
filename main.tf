@@ -60,9 +60,10 @@ resource "okta_app_signon_policy" "myMatrixExternal" {
 
 resource "okta_app_signon_policy_rule" "mfaHandledOrIgnored" {
   policy_id = okta_app_signon_policy.myMatrixExternal.id
-  name = "MME MFA Handled or Ignored"
+  name = "SSO Users"
   groups_included = [
     okta_group.ssoNoMFA.id,
+    okta_group.ssoMFA.id,
     okta_group.managed.id
   ]
   priority = 1
@@ -76,21 +77,25 @@ resource "okta_app_signon_policy_rule" "mfaHandledOrIgnored" {
     }),
   ]
   factor_mode = "1FA"
-  re_authentication_frequency = "PT43800H"
+  re_authentication_frequency = "PT0S"
 }
 
 resource "okta_app_signon_policy_rule" "denyAll" {
   policy_id = okta_app_signon_policy.myMatrixExternal.id
   name = "Deny All"
-  priority = 2
+  priority = 3
   access = "DENY"
 }
 
 /********** Global Session policies **********/
 
+data "okta_behavior" "new_device" {
+  name = "New Device"
+}
+
 resource "okta_policy_signon" "externalNetworkAccess" {
-  description = "Allow external users to access the application"
-  name = "MME Managed Users"
+  name = "MME Managed Users2"
+  description = "MME Managed Users"
   priority = 1
   groups_included = [
     okta_group.managed.id
@@ -98,21 +103,21 @@ resource "okta_policy_signon" "externalNetworkAccess" {
 }
 
 resource "okta_policy_rule_signon" "externalNetworkAccess" {
-  name = "MME Managed Users"
+  name = "MME Managed Users2"
   policy_id = okta_policy_signon.externalNetworkAccess.id
-  session_idle = 720
-  session_lifetime = 0
-  session_persistent = true
-  mfa_lifetime = "${local.workspace["mfa_lifetime"]}"
-  mfa_prompt = "SESSION"
+  session_idle = 1
+  session_lifetime = 5
+  session_persistent = false
   mfa_required = true
+  mfa_prompt = "SESSION"
+  mfa_lifetime = "${local.workspace["mfa_lifetime"]}"
   network_connection = "ANYWHERE"
   risc_level = "ANY"
 }
 
 resource "okta_policy_signon" "externalNetworkAccessNoMFA" {
-  name = "MME Users No MFA"
-  description = "Allow SSO users to access the application without MFA"
+  name = "MME SSO Users No MFA2"
+  description = "MME SSO Users No MFA"
   priority = 2
   groups_included = [
     okta_group.ssoNoMFA.id
@@ -120,14 +125,68 @@ resource "okta_policy_signon" "externalNetworkAccessNoMFA" {
 }
 
 resource "okta_policy_rule_signon" "externalNetworkAccessNoMFA" {
-  name = "MME Users No MFA"
+  name = "MME SSO Users No MFA2"
   policy_id = okta_policy_signon.externalNetworkAccessNoMFA.id
-  session_idle = 720
-  session_lifetime = 0
-  session_persistent = true
+  session_idle = 1
+  session_lifetime = 1
+  session_persistent = false
   mfa_required = false
   network_connection  = "ANYWHERE"
   risc_level = "ANY"
+}
+
+resource "okta_policy_signon" "externalNetworkAccessMFA" {
+  name = "MME SSO Users MFA2"
+  description = "MME SSO Users MFA"
+  priority = 3
+  groups_included = [
+    okta_group.ssoMFA.id
+  ]
+}
+
+resource "okta_policy_rule_signon" "ssoNewDevice" {
+  name = "MME SSO Users New Device2"
+  policy_id = okta_policy_signon.externalNetworkAccessMFA.id
+  behaviors = [
+    data.okta_behavior.new_device.id
+  ]
+  session_idle = 1
+  session_lifetime = 5
+  session_persistent = false
+  mfa_required = true
+  mfa_prompt = "DEVICE"
+  network_connection  = "ANYWHERE"
+  risc_level = "ANY"
+  priority = 1
+}
+
+resource "okta_policy_rule_signon" "ssoExistingDevice" {
+  name = "MME SSO Users Existing Device2"
+  policy_id = okta_policy_signon.externalNetworkAccessMFA.id
+  session_idle = 1
+  session_lifetime = 1
+  session_persistent = false
+  mfa_required = false
+  network_connection  = "ANYWHERE"
+  risc_level = "ANY"
+  priority = 2
+}
+
+resource "okta_policy_signon" "failAll" {
+  description = "MME Users CatchAll"
+  name = "MME Users CatchAll"
+  priority = 4
+  groups_included = [
+    okta_group.managed.id,
+    okta_group.ssoMFA.id,
+    okta_group.ssoNoMFA.id
+  ]
+}
+
+resource "okta_policy_rule_signon" "failAll" {
+  name = "MME Users CatchAll"
+  policy_id = okta_policy_signon.failAll.id
+  access = "DENY"
 }
 
 /********** Authenticator Enrollment **********/
@@ -136,6 +195,7 @@ resource "okta_policy_mfa" "emailMfa" {
   description       = "Managed User MFA settings"
   groups_included = [
     okta_group.managed.id,
+    okta_group.ssoMFA.id
   ]
   is_oie = true
   name = "MME Managed User MFA settings"
