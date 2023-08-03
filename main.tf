@@ -177,7 +177,8 @@ resource "okta_policy_rule_signon" "ssoExistingDevice" {
 resource "okta_policy_mfa" "emailMfa" {
   description       = "Managed User MFA settings"
   groups_included = [
-    okta_group.managed.id
+    okta_group.managed.id,
+    okta_group.ssoMFA.id
   ]
   is_oie = true
   name = "MME Managed User MFA settings"
