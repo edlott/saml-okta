@@ -77,7 +77,7 @@ resource "okta_app_signon_policy_rule" "mfaHandledOrIgnored" {
     }),
   ]
   factor_mode = "1FA"
-  re_authentication_frequency = "PT0S"
+  re_authentication_frequency = "PT43800H"
 }
 
 resource "okta_app_signon_policy_rule" "denyAll" {
@@ -172,30 +172,12 @@ resource "okta_policy_rule_signon" "ssoExistingDevice" {
   priority = 2
 }
 
-resource "okta_policy_signon" "failAll" {
-  description = "MME Users CatchAll"
-  name = "MME Users CatchAll"
-  priority = 4
-  groups_included = [
-    okta_group.managed.id,
-    okta_group.ssoMFA.id,
-    okta_group.ssoNoMFA.id
-  ]
-}
-
-resource "okta_policy_rule_signon" "failAll" {
-  name = "MME Users CatchAll"
-  policy_id = okta_policy_signon.failAll.id
-  access = "DENY"
-}
-
 /********** Authenticator Enrollment **********/
 
 resource "okta_policy_mfa" "emailMfa" {
   description       = "Managed User MFA settings"
   groups_included = [
-    okta_group.managed.id,
-    okta_group.ssoMFA.id
+    okta_group.managed.id
   ]
   is_oie = true
   name = "MME Managed User MFA settings"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # SCRIPT ARGUMENTS
 # $1 = environment
 
